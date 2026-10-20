@@ -142,27 +142,31 @@ class Bomb:
 
 class Score:  # 追加機能１
     def __init__(self):
-        # 1. フォントの設定 (サイズ50)
         self.fonto = pg.font.Font(None, 50)
-        # 2. 文字色の設定 (青)
         self.color = (0, 0, 255)
-        # 3. スコアの初期値設定
         self.score = 0
-        
-        # 4. 文字列 Surface の生成
         self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
-        
-        # 5. 文字列の中心座標の設定：画面左下 (横: 100, 縦: 画面下部から50)
         self.rct = self.img.get_rect()
-        # HEIGHT は画面の高さ (例: 700 など、環境に合わせた定数または指定値)
-        # 画面の高さが 700 の場合は 700 - 50 = 650 となります
         self.rct.center = (100, HEIGHT - 50)
 
     def update(self, screen: pg.Surface):
-        # 現在のスコアを表示させる文字列 Surface の再生成
         self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
-        # スクリーンに blit
         screen.blit(self.img, self.rct)
+
+class Explosion:
+    def __init__(self,bomb:Bomb):
+        self.img0 = pg.image.load(f"fig/explosion.gif")
+        self.img1 = pg.transform.flip(self.img0, True, True)  # 上下左右反転
+        self.imgs = [self.img0, self.img1]
+        self.rct = self.img0.get_rect()
+        self.rct.center = bomb.rct.center
+        self.life = 20
+
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        
+        if self.life > 0:
+            screen.blit(self.imgs[self.life % 2], self.rct)
 
 
 def main():
@@ -178,6 +182,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     beam = None  # ゲーム初期化時にはビームは存在しない
     beams = []  # 追加機能２
+    explosions = []
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -210,6 +215,7 @@ def main():
                     bomb = None
                     bombs[i] = None
                     beams[j] = None
+                    explosions.append(Explosion(bomb))
                     bird.change_img(6,screen)
                     score.score += 1  # 追加機能１
                     break
@@ -223,6 +229,7 @@ def main():
 
         bombs = [bomb for bomb in bombs if bomb is not None]  # Noneを取り除く
         beams = [beam for beam in beams if beam is not None]
+        explosions = [exp for exp in explosions if exp.life > 0]
 
 
         key_lst = pg.key.get_pressed()
@@ -231,6 +238,8 @@ def main():
             beam.update(screen)  
         for bomb in bombs: 
             bomb.update(screen)
+        for exp in explosions:
+            exp.update(screen)
 
         score.update(screen)  # 追加機能１
         pg.display.update()
