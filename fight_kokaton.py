@@ -140,6 +140,30 @@ class Bomb:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Score:
+    def __init__(self):
+        # 1. フォントの設定 (サイズ50)
+        self.fonto = pg.font.Font(None, 50)
+        # 2. 文字色の設定 (青)
+        self.color = (0, 0, 255)
+        # 3. スコアの初期値設定
+        self.score = 0
+        
+        # 4. 文字列 Surface の生成
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        
+        # 5. 文字列の中心座標の設定：画面左下 (横: 100, 縦: 画面下部から50)
+        self.rct = self.img.get_rect()
+        # HEIGHT は画面の高さ (例: 700 など、環境に合わせた定数または指定値)
+        # 画面の高さが 700 の場合は 700 - 50 = 650 となります
+        self.rct.center = (100, HEIGHT - 50)
+
+    def update(self, screen: pg.Surface):
+        # 現在のスコアを表示させる文字列 Surface の再生成
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        # スクリーンに blit
+        screen.blit(self.img, self.rct)
+
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -148,6 +172,7 @@ def main():
     bird = Bird((300, 200))
     bomb = Bomb((255, 0, 0), 10)
     bombs = []
+    score = Score()
     for _ in range(NUM_OF_BOMBS):
         bombs.append(Bomb((255, 0, 0), 10))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
@@ -180,6 +205,7 @@ def main():
                     bomb = None
                     bombs[i] = None
                     bird.change_img(6,screen)
+                    score.score += 1
                     pg.display.update()
 
         bombs = [bomb for bomb in bombs if bomb is not None]  # Noneを取り除く
@@ -191,6 +217,8 @@ def main():
             beam.update(screen)  
         for bomb in bombs: 
             bomb.update(screen)
+
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
