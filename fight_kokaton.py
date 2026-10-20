@@ -141,7 +141,13 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 class Score:  # 追加機能１
+    """
+    スコアに関するクラス
+    """
     def __init__(self):
+        """
+        スコア表を制作する
+        """
         # 1. フォントの設定 (サイズ50)
         self.fonto = pg.font.Font(None, 50)
         # 2. 文字色の設定 (青)
@@ -159,6 +165,10 @@ class Score:  # 追加機能１
         self.rct.center = (100, HEIGHT - 50)
 
     def update(self, screen: pg.Surface):
+        """
+        現在のスコアを描画する
+        引数 screen：画面Surface
+        """
         # 現在のスコアを表示させる文字列 Surface の再生成
         self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
         # スクリーンに blit
